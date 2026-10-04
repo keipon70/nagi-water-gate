@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#F2EFE8">
+  <meta name="description" content="nagi — 水をくぐり、何もしない時間へ。WATER GATEの単体プロトタイプ。">
+  <title>nagi — WATER GATE</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F2EFE8'/%3E%3Ctext x='18' y='47' font-family='Georgia' font-size='48' fill='%23394239'%3En%3C/text%3E%3C/svg%3E">
+  <link rel="preload" as="image" href="assets/gate.webp">
+  <style>
+    *{box-sizing:border-box}html{background:#F2EFE8;color:#24211E}body{margin:0}nagi-water-gate{display:block}
+    .breath{height:16svh;background:#F2EFE8}dialog{border:0;background:#F2EFE8;color:#24211E;padding:36px;max-width:min(420px,85vw);font:16px/1.9 serif}dialog::backdrop{background:#24211e80}dialog h2{font-size:20px;font-weight:400}dialog button{font:inherit;border:0;border-bottom:1px solid;background:none;padding:8px 0;color:inherit;cursor:pointer}button:focus-visible{outline:2px solid #394239;outline-offset:6px}
+    .no-js{position:relative;min-height:100svh;background:#F2EFE8 url('assets/hero.webp') center/cover}.no-js div{padding:15vh 9vw}.no-js h1{font:400 clamp(26px,3vw,46px)/1.7 serif}.no-js p{line-height:2}
+  </style>
+</head>
+<body>
+  <main>
+    <nagi-water-gate aria-label="nagi プライベートヘッドスパ">
+      <div class="no-js"><div><p>nagi<br>PRIVATE HEAD SPA</p><h1>何もしない時間を、<br>自分のために。</h1><p>頭も、予定も、会話も。<br>75分だけ、そっと置いていく。</p><p>空き状況を見る ↗</p></div></div>
+    </nagi-water-gate>
+    <div class="breath" aria-hidden="true"></div>
+  </main>
+  <dialog id="reservation"><h2>ご予約について</h2><p>この画面は体験確認用のプロトタイプです。予約先はまだ接続されていません。</p><form method="dialog"><button>閉じる</button></form></dialog>
+  <script type="module">
+    import './nagi-water-gate.js';
+    document.querySelector('nagi-water-gate').addEventListener('nagi:reserve',()=>document.querySelector('#reservation').showModal());
+  </script>
+</body>
+</html>
