@@ -26,7 +26,7 @@ class WaterRenderer {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
     const pos = gl.getAttribLocation(this.program, 'a_position');
     gl.enableVertexAttribArray(pos); gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
-    this.uniforms = Object.fromEntries(['resolution','progress','mobile','gateSize','heroSize'].map(n => [n, gl.getUniformLocation(this.program, `u_${n}`)]));
+    this.uniforms = Object.fromEntries(['resolution','progress','time','mobile','gateSize','heroSize'].map(n => [n, gl.getUniformLocation(this.program, `u_${n}`)]));
     const blurred = images.map(img => {
       const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
       const ctx = c.getContext('2d'); ctx.filter = 'blur(28px)';
@@ -48,7 +48,7 @@ class WaterRenderer {
   }
   resize(width, height) {
     const mobile = width <= 700;
-    const dpr = Math.min(devicePixelRatio || 1, mobile ? 1.25 : 1.5);
+    const dpr = Math.min(devicePixelRatio || 1, mobile ? 1 : 1.5);
     // Cap the raster budget as well as DPR on very large displays.
     const ratio = Math.min(dpr, Math.sqrt(2500000 / (width * height)));
     this.canvas.width = Math.round(width * ratio); this.canvas.height = Math.round(height * ratio);
@@ -56,7 +56,7 @@ class WaterRenderer {
     this.gl.uniform2f(this.uniforms.resolution, this.canvas.width, this.canvas.height);
     this.gl.uniform1f(this.uniforms.mobile, mobile ? 1 : 0);
   }
-  draw(progress) { this.gl.uniform1f(this.uniforms.progress, progress); this.gl.drawArrays(this.gl.TRIANGLES, 0, 6); this.drawCount++; }
+  draw(progress, time = 0) { this.gl.uniform1f(this.uniforms.progress, progress); this.gl.uniform1f(this.uniforms.time, time); this.gl.drawArrays(this.gl.TRIANGLES, 0, 6); this.drawCount++; }
   destroy() {
     const gl = this.gl;
     this.textures.forEach(t => gl.deleteTexture(t)); this.shaders.forEach(s => gl.deleteShader(s));
@@ -65,7 +65,7 @@ class WaterRenderer {
 }
 
 export class NagiWaterGate extends HTMLElement {
-  constructor() { super(); this.attachShadow({ mode: 'open' }); this.progress = 0; this.frame = 0; this.generation = 0; }
+  constructor() { super(); this.attachShadow({ mode: 'open' }); this.progress = 0; this.frame = 0; this.generation = 0; this.waterTime = 0; this.lastTick = 0; this.inView = true; this.lastProgress = -1; }
   connectedCallback() { this.mount(); }
   async mount() {
     const generation = ++this.generation;
@@ -108,7 +108,17 @@ export class NagiWaterGate extends HTMLElement {
     this.canvas.addEventListener('webglcontextrestored', () => { this.disconnectedCallback(); this.mount(); }, { signal });
     window.addEventListener('scroll', () => this.schedule(), { passive: true, signal });
     window.addEventListener('resize', () => this.resize(), { passive: true, signal });
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) this.schedule(); }, { signal });
+    document.addEventListener('visibilitychange', () => {
+      this.lastTick = 0;
+      if (document.hidden) { cancelAnimationFrame(this.frame); this.frame = 0; }
+      else this.schedule();
+    }, { signal });
+    this.visibilityObserver = new IntersectionObserver(([entry]) => {
+      this.inView = entry.isIntersecting; this.lastTick = 0;
+      if (this.inView) this.schedule();
+      else { cancelAnimationFrame(this.frame); this.frame = 0; }
+    });
+    this.visibilityObserver.observe(this.stage);
     this.resizeObserver = new ResizeObserver(() => this.resize()); this.resizeObserver.observe(this.stage);
     this.updateMode();
     try {
@@ -131,6 +141,7 @@ export class NagiWaterGate extends HTMLElement {
     this.zone.style.height = this.simplified ? '120svh' : '300svh';
     this.canvas.style.display = this.simplified ? 'none' : '';
     this.dataset.mode = this.simplified ? 'simplified' : 'water';
+    this.lastTick = 0; this.lastProgress = -1;
     this.resize();
   }
   resize() {
@@ -140,13 +151,22 @@ export class NagiWaterGate extends HTMLElement {
   }
   schedule() {
     if (this.frame || document.hidden) return;
-    this.frame = requestAnimationFrame(() => { this.frame = 0; this.render(); });
+    this.frame = requestAnimationFrame(timestamp => {
+      this.frame = 0;
+      const running = this.renderer && !this.simplified && this.inView && this.progress < .945;
+      if (running && this.lastTick) this.waterTime += Math.min((timestamp-this.lastTick)/1000,.05);
+      this.lastTick = running ? timestamp : 0;
+      this.render();
+      if (this.renderer && !this.simplified && this.inView && this.progress < .945) this.schedule();
+    });
   }
   render() {
     const rect = this.zone.getBoundingClientRect();
     const range = Math.max(1, this.zone.offsetHeight - this.stage.offsetHeight);
     this.progress = clamp(-rect.top / range);
     const p = this.progress;
+    if (p !== this.lastProgress) {
+    this.lastProgress = p;
     this.dataset.progress = p.toFixed(5);
     const revealP = this.simplified ? smooth(.08, .85, p) : p;
     this.gatePlate.style.opacity = String(1 - smooth(this.simplified ? .05 : .48, this.simplified ? .8 : .62, p));
@@ -160,7 +180,8 @@ export class NagiWaterGate extends HTMLElement {
     });
     this.parts.at(-1).tabIndex = p > (this.simplified ? .75 : .97) ? 0 : -1;
     this.parts.at(-1).style.pointerEvents = p > (this.simplified ? .75 : .97) ? 'auto' : 'none';
-    if (!this.simplified && this.renderer) this.renderer.draw(p);
+    }
+    if (!this.simplified && this.renderer) this.renderer.draw(p, this.waterTime);
   }
   /** Native page scroll. Useful to integrate a skip link or a preview scrubber. */
   goTo(progress) {
@@ -168,9 +189,10 @@ export class NagiWaterGate extends HTMLElement {
     const range = this.zone.offsetHeight - this.stage.offsetHeight;
     window.scrollTo({ top: top + clamp(progress) * range, behavior: 'instant' });
     this.render();
+    this.schedule();
   }
   disconnectedCallback() {
-    ++this.generation; this.abort?.abort(); this.resizeObserver?.disconnect();
+    ++this.generation; this.abort?.abort(); this.resizeObserver?.disconnect(); this.visibilityObserver?.disconnect();
     cancelAnimationFrame(this.frame); this.frame = 0; this.renderer?.destroy(); this.renderer = null;
   }
 }

@@ -26,6 +26,14 @@
   <script type="module">
     import './nagi-water-gate.js';
     document.querySelector('nagi-water-gate').addEventListener('nagi:reserve',()=>document.querySelector('#reservation').showModal());
+    if (new URLSearchParams(location.search).has('review')) {
+      const panel = document.createElement('nav');
+      panel.setAttribute('aria-label','WATER GATE V2 確認位置');
+      panel.style.cssText='position:fixed;z-index:20;right:12px;bottom:12px;padding:10px;background:#f2efe8ee;color:#24211e;font:12px Arial;display:flex;gap:8px;align-items:center';
+      panel.innerHTML='<span>V2</span>'+[0,25,55,100].map(n=>`<button type="button" data-progress="${n}" style="padding:10px;border:1px solid #a9a49a;background:transparent;color:inherit;cursor:pointer">${n}%</button>`).join('');
+      panel.addEventListener('click',e=>{const b=e.target.closest('button');if(b)document.querySelector('nagi-water-gate').goTo(Number(b.dataset.progress)/100)});
+      document.body.append(panel);
+    }
   </script>
 </body>
 </html>
