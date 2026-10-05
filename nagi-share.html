@@ -30,7 +30,8 @@ varying vec2 v_uv;
 void main(){v_uv=a_position*.5+.5;gl_Position=vec4(a_position,0.,1.);}
 `;
 
-// Time advects water downward. Progress controls only the scene envelope.
+// V3: common-source jets -> approaching packets -> impact -> draining film.
+// Time moves water; progress only changes the camera/scene envelope.
 const fragmentShader = `
 precision highp float;
 varying vec2 v_uv;
@@ -48,54 +49,99 @@ float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
 float fbm(vec2 p){return noise(p)*.57+noise(p*2.03+8.4)*.28+noise(p*4.11+27.1)*.15;}
 vec2 cover(vec2 uv,vec2 size){float a=u_resolution.x/u_resolution.y,b=size.x/size.y;vec2 s=vec2(min(a/b,1.),min(b/a,1.));return (uv-.5)*s+.5;}
-float rivulets(vec2 q,float scale,float seed){
-  float x=q.x*scale;
-  float cell=floor(x);float sum=0.;
+float jetFan(vec2 q,vec2 source,float spacing,float seed,float depth){
+  vec2 d=q-source;
+  float travel=max(d.y,.04);
+  float slope=d.x/travel;
+  float cell=floor(slope/spacing),sum=0.;
   for(int i=-1;i<=1;i++){
     float id=cell+float(i);float r=hash(vec2(id,seed));
-    float center=id+.15+.7*r;
-    float yy=(q.y+u_time*(.10+r*.13))*(4.6+r*7.)+seed;
-    float bend=(noise(vec2(yy*.5,id+seed))-.5)*.42;
-    float width=.035+.18*pow(noise(vec2(yy*.8+5.,id)),2.);
-    if(seed>40.) width=.13+.38*noise(vec2(yy*.57,id+4.));
-    float dx=(x-center-bend)/width;
-    float breakup=smoothstep(.22,.56,noise(vec2(yy*.65,id*3.)));
-    sum+=exp(-dx*dx)*breakup*(.6+.4*r);
+    float angle=(id+.18+.64*r)*spacing;
+    // The same origin, but unequal speeds, nozzle offsets and widening streams.
+    float flow=travel-u_time*(.35+depth*.55+r*.30);
+    float wobble=(noise(vec2(flow*11.,id+seed))-.5)*(.002+depth*.011)*travel;
+    float center=angle*travel+wobble;
+    float width=(.00065+depth*.0035)*(1.+travel*1.8)*(.6+r);
+    float segment=noise(vec2(flow*(22.-depth*8.),id*3.+seed));
+    float broken=mix(.025,1.,smoothstep(.28,.72,segment));
+    float dx=(d.x-center)/width;
+    float stream=exp(-dx*dx)*broken;
+    // A thinner strand splits away downstream and shares its parent's speed.
+    float split=(d.x-center-sin(flow*13.+r*6.)*.015*travel)/(width*.35);
+    stream+=exp(-split*split)*smoothstep(.42,.8,travel)*segment*.25;
+    sum+=stream*(.65+r*.35);
   }
-  return sum;
+  return sum*smoothstep(0.,.12,travel)*(1.-smoothstep(1.1,1.65,abs(slope)));
 }
-float lensDrops(vec2 q){
-  float h=0.;
-  for(int i=0;i<9;i++){
-    if(u_mobile>.5 && i>=4) break;
-    float id=float(i),r=hash(vec2(id,71.));
-    float x=(.05+.9*hash(vec2(id,16.)))*u_resolution.x/u_resolution.y;
-    float y=1.15-mod(hash(vec2(id,29.))*1.4+u_time*(.012+r*.019),1.4);
-    vec2 d=q-vec2(x,y);
-    float radius=.009+r*.012;
-    // Uneven elongated footprint and a narrow trailing neck, no spherical particles.
-    d.x+=sin(d.y*65.+id)*.0015;
-    float body=exp(-pow(d.x/radius,2.)-pow(d.y/(radius*2.4),2.));
-    float neck=exp(-pow(d.x/(radius*.35),2.))*smoothstep(-.01,.025,d.y)*(1.-smoothstep(.03,.14,d.y));
-    h+=body*.24+neck*.07;
+// x: approaching water, y: local impact/splash, z: deposited water.
+// Each packet and its residue share target, cycle and collision time.
+vec3 collisions(vec2 q,vec2 source,float p){
+  vec3 result=vec3(0.);
+  float aspect=u_resolution.x/u_resolution.y;
+  for(int i=0;i<5;i++){
+    if(u_mobile>.5 && i>=3) break;
+    float id=float(i),period=2.25+hash(vec2(id,7.))*.8;
+    float clock=u_time+id*.69+.42;
+    float cycle=floor(clock/period),age=mod(clock,period);
+    vec2 target=vec2((.07+.86*hash(vec2(id+cycle*3.,31.)))*aspect,.32+.56*hash(vec2(id+cycle*2.,42.)));
+    vec2 axis=target-source;float len=length(axis);vec2 dir=axis/len;
+    vec2 delta=q-source;
+    float along=dot(delta,dir),across=dot(delta,vec2(-dir.y,dir.x));
+    float flight=clamp(age/.80,0.,1.);
+    float head=len*pow(flight,1.55);
+    float width=mix(.002,.040+.030*smoothstep(.18,.5,p),pow(flight,3.));
+    float wav=sin(along*24.-u_time*14.+id)*.004*flight;
+    float packet=exp(-pow((across+wav)/width,2.));
+    packet*=smoothstep(head-.28,head-.05,along)*(1.-smoothstep(head,head+.035,along));
+    packet*=1.-smoothstep(.77,.83,age);
+    float hitAge=age-.80;
+    float landed=smoothstep(0.,.04,hitAge);
+    vec2 d=q-target;
+    float radius=.055+max(hitAge,0.)*.48;
+    // Continuous irregular footprint: no angular singularity/star at its center.
+    vec2 smear=d/vec2(1.15,.72);
+    smear.x+=sin(d.y*23.+id)*.018;
+    float splash=exp(-dot(smear,smear)/(radius*radius))*landed*exp(-max(hitAge,0.)*5.);
+    splash*=.75+.25*noise(d*24.+id);
+    // Three tiny, short-lived torn-off flecks travel out from the same impact.
+    for(int j=0;j<3;j++){
+      float a=float(j)*2.3+id;
+      vec2 offset=vec2(cos(a),sin(a))*(.02+max(hitAge,0.)*.42);
+      vec2 speck=(d-offset)/vec2(.006,.014);
+      splash+=exp(-dot(speck,speck))*landed*exp(-max(hitAge,0.)*12.)*.12;
+    }
+    vec2 residue=d-vec2(sin(id)*max(hitAge,0.)*.013,max(hitAge,0.)*.10);
+    float film=exp(-pow(residue.x/(.06+.065*landed),2.)-pow(residue.y/(.08+max(hitAge,0.)*.20),2.));
+    film*=landed*exp(-max(hitAge,0.)*.95);
+    result+=vec3(packet,splash,film);
   }
-  return h;
+  return result;
 }
-float heightField(vec2 uv,float p){
-  vec2 q=vec2(uv.x*u_resolution.x/u_resolution.y,uv.y);
-  float film=smoothstep(.36,.52,p)*(1.-smoothstep(.65,.87,p));
-  float strength=.68+.32*smoothstep(.2,.4,p);
-  float h=rivulets(q+vec2(p*.018,0.),12.,2.)*.30;
-  if(u_mobile<.5) h+=rivulets(q+vec2(.4-p*.012,0.),24.,19.)*.10*strength;
-  h+=rivulets(q+vec2(.7+p*.027,0.),5.8,41.)*.34;
-  h+=lensDrops(q)*(1.-smoothstep(.82,.94,p));
-  // A connected uneven sheet, elongated with gravity rather than circular particles.
-  vec2 w=q*vec2(3.2,1.8)+vec2(0.,u_time*.07);
-  h+=(.20+film)*(fbm(w+fbm(w*1.4)*1.1)*1.3+fbm(w*vec2(3.,.5))*.24);
-  float drain=smoothstep(.64,.94,p);
-  float edge=drain*1.15-.08 + (noise(vec2(q.x*4.,p*3.))-.5)*.15;
-  float wet=1.-smoothstep(1.-edge-.035,1.-edge+.035,uv.y);
-  return h*strength*wet*(1.-smoothstep(.90,.945,p));
+// x = optical height, y = jet body scattering, z = local blur/impact.
+vec3 waterField(vec2 uv,float p){
+  float aspect=u_resolution.x/u_resolution.y;
+  vec2 q=vec2(uv.x*aspect,1.-uv.y);
+  vec2 source=vec2(aspect*.64,-.14);
+  float approach=smoothstep(.18,.48,p);
+  float calm=1.-smoothstep(.72,.945,p);
+  float formed=smoothstep(.38,.56,p)*(1.-smoothstep(.70,.91,p));
+  float startup=smoothstep(.15,1.3,u_time);
+  float far=jetFan(q,source,.075,2.,.08);
+  float mid=jetFan(q,source+vec2(.012,-.01),.145,19.,.40+approach*.2);
+  if(u_mobile<.5) far+=jetFan(q,source-vec2(.008,0.),.054,35.,.04)*.4;
+  vec3 hits=collisions(q,source,p);
+  float jet=far*.12+mid*(.32+.18*approach)+hits.x*(.95+approach*.8);
+  float impact=hits.y*(.6+approach*1.8);
+  float deposited=hits.z*(.18+approach*.6);
+  // Dense collisions build a connected sheet only after arrival at the lens.
+  vec2 flow=q*vec2(5.,2.2)-vec2(0.,u_time*.22);
+  float uneven=fbm(flow+vec2(fbm(flow*1.7),0.));
+  float sheet=formed*startup*(.40+uneven*.8);
+  float drain=smoothstep(.70,.94,p);
+  float edge=drain*1.25-.12+(noise(vec2(q.x*4.,2.))-.5)*.13;
+  float wet=smoothstep(edge-.045,edge+.045,q.y);
+  float h=jet*.28+impact*.6+(deposited+sheet)*wet;
+  return vec3(h,jet,impact+deposited*.28+sheet*.9)*calm;
 }
 vec3 hero(vec2 uv,float soft){
   vec3 ivory=vec3(.94902,.93725,.90980);
@@ -115,7 +161,7 @@ vec3 scene(vec2 uv,float change,float p){
   vec2 g=cover(uv,u_gateSize);
   // Millimetric scene drift; foreground water travels independently.
   g+=(vec2(.006,-.009)*p)*(1.-change);
-  float soft=smoothstep(.37,.51,p)*(1.-smoothstep(.65,.86,p))*.98;
+  float soft=smoothstep(.43,.57,p)*(1.-smoothstep(.70,.88,p))*.98;
   vec3 a=mix(texture2D(u_gate,clamp(g,.001,.999)).rgb,texture2D(u_gateBlur,clamp(g,.001,.999)).rgb,soft);
   a*=.78+.10*smoothstep(0.,.4,p);
   return mix(a,hero(uv,soft),change);
@@ -123,24 +169,28 @@ vec3 scene(vec2 uv,float change,float p){
 void main(){
   vec2 uv=v_uv;float p=u_progress;
   if(p>=.945){gl_FragColor=vec4(hero(uv,0.),1.);return;}
-  float film=smoothstep(.36,.52,p)*(1.-smoothstep(.65,.87,p));
+  float film=smoothstep(.40,.57,p)*(1.-smoothstep(.70,.91,p));
   vec2 e=vec2(.0012*u_resolution.y/u_resolution.x,.0012);
-  vec2 grad=vec2(heightField(uv+vec2(e.x,0.),p)-heightField(uv-vec2(e.x,0.),p),heightField(uv+vec2(0.,e.y),p)-heightField(uv-vec2(0.,e.y),p));
+  vec3 water=waterField(uv,p);
+  vec2 grad=2.*vec2(waterField(uv+vec2(e.x,0.),p).x-water.x,waterField(uv+vec2(0.,e.y),p).x-water.x);
   vec2 normal=grad*vec2(2.8,2.2);
-  vec2 refractUV=uv+normal*(.075+.04*film);
+  vec2 refractUV=uv+clamp(normal,vec2(-.25),vec2(.25))*(.045+.06*film);
   refractUV+=(vec2(fbm(vec2(uv.x*4.,uv.y*2.+u_time*.09)),fbm(vec2(uv.x*3.+9.,uv.y+u_time*.06)))-.5)*film*.018;
   // Scene replacement is spatially staggered beneath maximum film, not a global fade.
-  float boundary=.55+(fbm(uv*vec2(3.,2.))-.5)*.095;
+  float boundary=.625+(fbm(uv*vec2(3.,2.))-.5)*.14;
   float change=smoothstep(boundary-.014,boundary+.014,p);
-  float blur=film*.005;
+  float blur=film*.009+min(water.z,1.)*.018;
   vec3 c=scene(refractUV,change,p)*.6;
   c+=scene(refractUV+vec2(blur,blur*.5),change,p)*.2;
   c+=scene(refractUV-vec2(blur,blur*.5),change,p)*.2;
   float light=dot(normal,normalize(vec2(-.6,.8)));
-  float glint=pow(max(light,0.),1.45)*1.9;
+  float glint=pow(max(light,0.),1.45)*1.15;
   float wet=1.-smoothstep(.88,.945,p);
   c*=1.-clamp(-light*.5,0.,.22)*wet;
   c+=vec3(.88,.86,.79)*min(glint,.35)*wet;
+  // Fresnel-like body light keeps the source fan legible against the dark room.
+  c=mix(c,vec3(.76,.75,.69),min(water.y*.23,.32));
+  c+=vec3(.12,.115,.10)*min(water.z,.9);
   // Soft scattered daylight through the contiguous sheet obscures the boundary.
   float veil=film*(.15+.14*fbm(vec2(uv.x*4.,uv.y*2.+u_time*.07)));
   c=mix(c,vec3(.57,.56,.51),veil);
@@ -200,9 +250,9 @@ class WaterRenderer {
   }
   resize(width, height) {
     const mobile = width <= 700;
-    const dpr = Math.min(devicePixelRatio || 1, mobile ? 1 : 1.5);
+    const dpr = Math.min(devicePixelRatio || 1, mobile ? 1 : 1.25);
     // Cap the raster budget as well as DPR on very large displays.
-    const ratio = Math.min(dpr, Math.sqrt(2500000 / (width * height)));
+    const ratio = Math.min(dpr, Math.sqrt(1500000 / (width * height)));
     this.canvas.width = Math.round(width * ratio); this.canvas.height = Math.round(height * ratio);
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     this.gl.uniform2f(this.uniforms.resolution, this.canvas.width, this.canvas.height);
@@ -359,9 +409,9 @@ if (!customElements.get('nagi-water-gate')) customElements.define('nagi-water-ga
     document.querySelector('nagi-water-gate').addEventListener('nagi:reserve',()=>document.querySelector('#reservation').showModal());
     if (new URLSearchParams(location.search).has('review')) {
       const panel = document.createElement('nav');
-      panel.setAttribute('aria-label','WATER GATE V2 確認位置');
-      panel.style.cssText='position:fixed;z-index:20;right:12px;bottom:12px;padding:10px;background:#f2efe8ee;color:#24211e;font:12px Arial;display:flex;gap:8px;align-items:center';
-      panel.innerHTML='<span>V2</span>'+[0,25,55,100].map(n=>`<button type="button" data-progress="${n}" style="padding:10px;border:1px solid #a9a49a;background:transparent;color:inherit;cursor:pointer">${n}%</button>`).join('');
+      panel.setAttribute('aria-label','WATER GATE V3 確認位置');
+      panel.style.cssText='position:fixed;z-index:20;right:8px;bottom:12px;max-width:calc(100vw - 16px);padding:8px;background:#f2efe8ee;color:#24211e;font:11px Arial;display:flex;gap:4px;align-items:center';
+      panel.innerHTML='<span>V3</span>'+[0,20,40,55,70,100].map(n=>`<button type="button" data-progress="${n}" style="min-height:44px;padding:7px;border:1px solid #a9a49a;background:transparent;color:inherit;cursor:pointer">${n}%</button>`).join('');
       panel.addEventListener('click',e=>{const b=e.target.closest('button');if(b)document.querySelector('nagi-water-gate').goTo(Number(b.dataset.progress)/100)});
       document.body.append(panel);
     }

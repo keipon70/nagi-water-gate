@@ -48,9 +48,9 @@ class WaterRenderer {
   }
   resize(width, height) {
     const mobile = width <= 700;
-    const dpr = Math.min(devicePixelRatio || 1, mobile ? 1 : 1.5);
+    const dpr = Math.min(devicePixelRatio || 1, mobile ? 1 : 1.25);
     // Cap the raster budget as well as DPR on very large displays.
-    const ratio = Math.min(dpr, Math.sqrt(2500000 / (width * height)));
+    const ratio = Math.min(dpr, Math.sqrt(1500000 / (width * height)));
     this.canvas.width = Math.round(width * ratio); this.canvas.height = Math.round(height * ratio);
     this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     this.gl.uniform2f(this.uniforms.resolution, this.canvas.width, this.canvas.height);
