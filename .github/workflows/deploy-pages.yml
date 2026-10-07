@@ -25,8 +25,13 @@ jobs:
       - uses: actions/configure-pages@v5
         with:
           enablement: true
+      - name: Stage public files only
+        run: |
+          mkdir -p _site/assets
+          cp index.html site.css site.js nagi-water-gate.js nagi-water-gate.css water-shader.js .nojekyll _site/
+          cp assets/*.webp assets/nagi-og.jpg _site/assets/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

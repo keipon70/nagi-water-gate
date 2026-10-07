@@ -1,6 +1,28 @@
-# nagi — WATER GATE / SHOWER ZONE — Final Candidate
+# nagi — PRIVATE HEAD SPA / Concept LP
 
-WebGLによる水膜と、HTMLのHEROをまとめた、依存ライブラリ不要のWeb Componentです。後続LPセクションは含みません。
+既存のWATER GATE / HEROを保持し、NOISEからFINALまでを追加した、一つのコンセプトLPです。外部ライブラリ不要のHTML/CSS/JavaScriptで構成しています。
+
+## LP全体の構成
+
+- `index.html`: 全セクション、5項目のFAQ、予約案内、OGP。
+- `site.css`: 日本語の文字組み、非対称の写真レイアウト、Desktop/Mobile、Reduced Motion。
+- `site.js`: NAGI文字内のCanvas 2Dの光、ネイティブスクロール連動、75 MINUTES、最終波紋、予約先の一元設定。
+- `LP_SPEC.md`: 制作方針・承認済み変更・未確定事項。
+- `nagi-water-gate.js` / `.css` / `water-shader.js`: 既存の冒頭体験を変更せず使用。
+
+Desktopの75 MINUTESはsticky横移動、Mobileは5場面を縦に読む構成です。Reduced MotionとJavaScript無効時も内容が通常の縦並びで読めます。NAGIの常時描画は文字が画面内にある間のみで、Reduced Motionでは静止します。
+
+予約先は `site.js` の `BOOKING_URL` 一箇所で設定します。空欄の現在は、すべてのCTAで架空作品の案内を表示します。決済・予約受付は行いません。税区分、75分に含む範囲、メイク、変更条件、支払い方法、店舗所在地は未設定です。
+
+公開URLは閲覧・診断・SNS共有で共通です。`nagi-share.html` は同じLPのオフライン持ち出し用で、別デザインではありません。公開物はActions内でランタイムファイルだけを選別し、制作メモは配信しません。検索除外設定は維持しています。
+
+## 全体LPの検証（2026-10-07）
+
+Chromeの1440×900、390×844、320×700、768×1024、Reduced Motion、JavaScript無効を確認。全写真の読み込み成功、横はみ出しなし、ページ・コンソールエラーなし。5項目のFAQをキーボードで開閉でき、CTAの案内はEscapeで閉じられます。横移動の順・逆方向、文字内の常時変化／画面外停止／Reduced Motion静止、最終一滴の動作を確認しました。単一HTMLもローカルファイルとして実行エラーなし。
+
+写真・文字組みはDesktop/Mobileの実表示画像で確認。OGPは既存の採用Visual Masterを1200×751 JPEGで最適化して再利用しています。新規写真は生成していません。追加写真は利用者提供のARRIVE〜RETURN、QUIET CHOICE、SPACE、スタッフの準備風景をWebP（主に1200px/600px）へ最適化したものです。
+
+実機iOS Safari／低性能Androidの速度とSNSサービス側のカード表示は未確認です。NAGIの光は実写ではなくCanvas 2Dによる図形表現です。外部診断スキルと利用者のデザイン承認は未実施です。
 
 ## プレビュー
 

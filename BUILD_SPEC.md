@@ -1,6 +1,6 @@
 # nagi — WATER GATE prototype
 
-Scope: independent, dependency-free custom element; WATER GATE → HERO → breathing space only. User authorized implementation on 2026-09-23. No existing application in workspace.
+Current scope (2026-10-07): one complete nagi concept LP, from the existing WATER GATE / HERO through NOISE, NAGI MASK, 75 MINUTES, QUIET CHOICE, SPACE, MENU, PHILOSOPHY, FAQ and FINAL. Full implementation decisions and approved exceptions are recorded in LP_SPEC.md. The original gate implementation below is preserved as historical technical context, not a limit on the current LP scope.
 
 Direction: start inside water, pass through a lens film, arrive at stillness. Warm ivory #F2EFE8, ink #24211E, moss #394239, stone #A9A49A. No blue, particles, remote shower approach or baked typography.
 

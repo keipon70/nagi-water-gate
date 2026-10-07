@@ -5,8 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#F2EFE8">
-  <meta name="description" content="nagi — 水をくぐり、何もしない時間へ。WATER GATEの単体プロトタイプ。">
-  <title>nagi — WATER GATE</title>
+  <meta name="description" content="頭も、予定も、会話も。75分だけ、そっと置いていく。プライベートヘッドスパ nagi のコンセプト作品。">
+  <title>nagi — 何もしない時間を、自分のために。</title>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="nagi — 何もしない時間を、自分のために。">
+  <meta property="og:description" content="水をくぐり、静けさへ。プライベートヘッドスパのコンセプト作品。">
+  <meta property="og:url" content="https://keipon70.github.io/nagi-water-gate/">
+  <link rel="canonical" href="https://keipon70.github.io/nagi-water-gate/">
+  <meta property="og:image" content="https://keipon70.github.io/nagi-water-gate/assets/nagi-og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="751">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:alt" content="nagi。何もしない時間を、自分のために。自然光の中で受けるヘッドスパ。">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="site.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F2EFE8'/%3E%3Ctext x='18' y='47' font-family='Georgia' font-size='48' fill='%23394239'%3En%3C/text%3E%3C/svg%3E">
   <link rel="preload" as="image" href="assets/gate.webp">
   <style>
@@ -15,17 +27,52 @@
     .no-js{position:relative;min-height:100svh;background:#F2EFE8 url('assets/hero.webp') center/cover}.no-js div{padding:15vh 9vw}.no-js h1{font:400 clamp(26px,3vw,46px)/1.7 serif}.no-js p{line-height:2}
   </style>
 </head>
-<body>
+<body id="top">
   <main>
     <nagi-water-gate aria-label="nagi プライベートヘッドスパ">
       <div class="no-js"><div><p>nagi<br>PRIVATE HEAD SPA</p><h1>何もしない時間を、<br>自分のために。</h1><p>頭も、予定も、会話も。<br>75分だけ、そっと置いていく。</p><p>空き状況を見る ↗</p></div></div>
     </nagi-water-gate>
-    <div class="breath" aria-hidden="true"></div>
+    <nav class="chapter-nav" aria-label="ページ内案内"><a class="wordmark" href="#top" aria-label="nagi ページの先頭">nagi</a><div><a href="#minutes">75分の過ごし方</a><a href="#menu">メニュー</a><a href="#faq">FAQ</a></div></nav>
+    <section class="noise" aria-labelledby="noise-title">
+      <div class="thoughts" aria-hidden="true"><span>返信しなきゃ</span><span>明日の予定</span><span>買い物</span><span>仕事のこと</span><span>あれ、どうしよう</span><span>忘れてないかな</span><span>連絡しないと</span><span>家のこと</span></div>
+      <div class="noise-core"><p class="eyebrow">LEAVE THE EVERYDAY</p><h2 id="noise-title">休んでいるのに、<br>頭の中は、忙しい。</h2><p>何かをするためじゃなく、<br>何もしないための時間があってもいい。</p></div>
+    </section>
+    <section class="nagi-mask" aria-labelledby="mask-title"><div class="mask-word" aria-hidden="true"><span>NAGI</span><canvas id="caustics"></canvas></div><h2 id="mask-title">静けさは、つくるものじゃなく、<br>戻ってくるもの。</h2><p class="eyebrow">A LITTLE TIME TO RETURN TO YOURSELF</p></section>
+    <section id="minutes" class="minutes" aria-labelledby="minutes-title"><div class="minutes-stage">
+      <header class="minutes-heading"><div><p class="eyebrow">THE NAGI EXPERIENCE</p><h2 id="minutes-title"><span>75</span> MINUTES</h2></div><p>予定を忘れて、<br>自分に戻るまで。</p><span class="rail-count" aria-hidden="true">01 — 05</span></header>
+      <div class="experience-track">
+        <article class="experience"><img src="assets/arrive.webp" srcset="assets/arrive-small.webp 600w, assets/arrive.webp 1200w" sizes="(max-width: 767px) 90vw, 68vw" width="1200" height="800" loading="lazy" alt="リネンの向こう、柔らかな光の室内へ入る女性"><div class="scene-caption"><p class="eyebrow">01 / ARRIVE</p><h3>外のことは、ここまで。</h3><p>扉の向こうに、予定のない時間。</p></div></article>
+        <article class="experience"><img src="assets/choose.webp" srcset="assets/choose-small.webp 600w, assets/choose.webp 1200w" sizes="(max-width: 767px) 90vw, 68vw" width="1200" height="800" loading="lazy" alt="木の台に並ぶ香りの瓶にそっと手を伸ばす"><div class="scene-caption"><p class="eyebrow">02 / CHOOSE</p><h3>今日の自分に、合わせる。</h3><p>香りも、会話の距離も。</p></div></article>
+        <article class="experience"><img src="assets/release.webp" srcset="assets/release-small.webp 600w, assets/release.webp 1200w" sizes="(max-width: 767px) 90vw, 68vw" width="1200" height="800" loading="lazy" alt="濡れた髪を包む施術者の手"><div class="scene-caption"><p class="eyebrow">03 / RELEASE</p><h3>水と、手に、ゆだねる。</h3><p>考えることを、少しずつ手放して。</p></div></article>
+        <article class="experience"><img src="assets/rest.webp" srcset="assets/rest-small.webp 600w, assets/rest.webp 1200w" sizes="(max-width: 767px) 90vw, 68vw" width="1200" height="800" loading="lazy" alt="目を閉じて静かに横たわる女性"><div class="scene-caption"><p class="eyebrow">04 / REST</p><h3>何もしない。それだけでいい。</h3><p>話さず、急がず、ただここに。</p></div></article>
+        <article class="experience"><img src="assets/return.webp" srcset="assets/return-small.webp 600w, assets/return.webp 1200w" sizes="(max-width: 767px) 90vw, 68vw" width="1200" height="800" loading="lazy" alt="窓辺で陶器のカップを両手で持つ女性"><div class="scene-caption"><p class="eyebrow">05 / RETURN</p><h3>戻る前に、もうひと息。</h3><p>温かいお茶と、静けさの余韻。</p></div></article>
+      </div><div class="rail-line" aria-hidden="true"><i></i></div>
+    </div></section>
+    <section id="choice" class="choice section-pad" aria-labelledby="choice-title"><div class="choice-photo reveal"><img src="assets/quiet-choice.webp" srcset="assets/quiet-choice-small.webp 600w, assets/quiet-choice.webp 1200w" sizes="(max-width:767px) 100vw, 48vw" width="1200" height="800" loading="lazy" alt="木のテーブルに置かれた三枚のカードと選ぶ手"><p class="eyebrow">YOUR QUIET. YOUR CHOICE.</p></div><div class="choice-copy reveal"><p class="eyebrow">QUIET CHOICE</p><h2 id="choice-title">今日は、どれくらい<br>話したいですか。</h2><p>話さないことに、気をつかわなくていい。<br>その日の気分で、会話の距離を選べます。</p><dl class="choice-rows"><div><dt><small>01</small> SILENT</dt><dd>話さなくて大丈夫。</dd></div><div><dt><small>02</small> MINIMUM</dt><dd>必要なことだけ。</dd></div><div><dt><small>03</small> TALK</dt><dd>話したくなったら。</dd></div></dl><a class="text-cta" href="#concept-note" data-reserve>空き状況を見る <span aria-hidden="true">↗</span></a></div></section>
+    <section id="space" class="space section-pad" aria-labelledby="space-title"><header class="reveal"><p class="eyebrow">THE SPACE BETWEEN</p><h2 id="space-title">静かになるための、<br>小さな余白。</h2></header><div class="space-grid">
+      <figure class="space-light reveal"><img src="assets/space-light.webp" width="1200" height="800" loading="lazy" alt="漆喰の壁に揺れる葉の影"><figcaption>01 / LIGHT &amp; PLASTER</figcaption></figure>
+      <figure class="space-linen reveal"><img src="assets/space-linen-small.webp" width="600" height="400" loading="lazy" alt="光を透かす自然な風合いのリネン"><figcaption>02 / LINEN &amp; AIR</figcaption></figure>
+      <p class="space-aside">光のうつろい。<br>布の手ざわり。<br>水の音。</p>
+      <figure class="space-water reveal"><img src="assets/space-water-small.webp" width="600" height="400" loading="lazy" alt="陶器の器へ落ちる細い水"><figcaption>03 / WATER &amp; MATERIAL</figcaption></figure>
+      <figure class="space-objects reveal"><img src="assets/space-objects.webp" width="1200" height="800" loading="lazy" alt="木の台に整えられたリネンと陶器"><figcaption>04 / WOOD &amp; STILLNESS</figcaption></figure>
+      <figure class="space-return reveal"><img src="assets/return-small.webp" width="600" height="400" loading="lazy" alt="お茶を持って窓辺でくつろぐひととき"><figcaption>05 / A MOMENT FOR YOU</figcaption></figure>
+    </div></section>
+    <section id="menu" class="menu section-pad" aria-labelledby="menu-title"><header><p class="eyebrow">ONE PRIVATE SESSION</p><h2 id="menu-title">自分のために、<br>あけておく75分。</h2><p class="menu-limit">完全予約制 · 1日4組</p></header><div class="menu-offer reveal"><p class="eyebrow">HEAD SPA</p><p class="duration">75 <span>min</span></p><div class="price-row"><span>通常</span><span>¥9,900</span></div><div class="first-price"><p class="eyebrow">FIRST VISIT</p><p>¥8,800</p></div><a class="text-cta" href="#concept-note" data-reserve>空き状況を見る <span aria-hidden="true">↗</span></a><p class="fine-print">価格・提供内容はコンセプト上の設定です。<br>税込表記・75分に含む範囲は未設定です。</p></div></section>
+    <section class="philosophy" aria-labelledby="philosophy-title"><img class="reveal" src="assets/philosophy.webp" srcset="assets/philosophy-small.webp 600w, assets/philosophy.webp 1200w" sizes="(max-width:767px) 100vw, 60vw" width="1200" height="800" loading="lazy" alt="施術前のリネンを丁寧に整えるスタッフ"><div class="reveal"><p class="eyebrow">BEFORE YOU ARRIVE</p><h2 id="philosophy-title">何もしなくていい時間を、<br>ちゃんと整えておく。</h2><p>施術だけではなく、<br>光、音、香り、会話の距離まで。</p><p>75分を邪魔するものを、<br>できるだけ少なくしています。</p></div></section>
+    <section id="faq" class="faq section-pad" aria-labelledby="faq-title"><header><p class="eyebrow">BEFORE YOUR VISIT</p><h2 id="faq-title">気になることを、<br>置いてから。</h2></header><div class="faq-list">
+      <details><summary>会話をしなくても大丈夫ですか？</summary><p>SILENT・MINIMUM・TALKの3つから、その日の気分に合う会話スタイルを選ぶコンセプトです。話さず過ごしたい気持ちも大切にします。</p></details>
+      <details><summary>初めてでも大丈夫ですか？</summary><p>初回75分・¥8,800のメニューを設定しています。初めての方の受付や事前確認の流れは、実店舗としての運営時に決定する項目です。</p></details>
+      <details><summary>メイクしたまま行けますか？</summary><p>メイクをしたまま受けられるか、お直し設備の有無は未設定です。この作品では実際のご来店・施術の受付を行っていません。</p></details>
+      <details><summary>予約の変更について教えてください。</summary><p>変更・キャンセルの期限や料金は未設定です。実際の予約受付を始める場合は、予約前に確認できるよう条件を掲載します。</p></details>
+      <details><summary>支払い方法を教えてください。</summary><p>対応する支払い方法は未設定です。このサイトに決済機能はなく、お支払いが発生することはありません。</p></details>
+    </div></section>
+    <section class="final" aria-labelledby="final-title"><div class="water-drop" aria-hidden="true"><i></i><b></b><em></em></div><p class="eyebrow">A QUIET MOMENT, JUST FOR YOU</p><h2 id="final-title">何もしない時間を、<br>自分のために。</h2><p class="final-price">75 min <span>FIRST VISIT ¥8,800</span></p><a class="text-cta" href="#concept-note" data-reserve>空き状況を見る <span aria-hidden="true">↗</span></a><p class="final-mark" aria-hidden="true">nagi</p></section>
   </main>
-  <dialog id="reservation"><h2>ご予約について</h2><p>この画面は体験確認用のプロトタイプです。予約先はまだ接続されていません。</p><form method="dialog"><button>閉じる</button></form></dialog>
+  <footer id="concept-note"><a class="wordmark" href="#top">nagi</a><p>PRIVATE HEAD SPA — CONCEPT WORK</p><p>架空のヘッドスパを題材にした制作作品です。<br>価格・サービス内容は作品上の設定で、実際のご予約は受け付けていません。</p><small>© nagi concept</small></footer>
+  <dialog id="reservation" aria-labelledby="reservation-title"><h2 id="reservation-title">静けさを、体験するための作品。</h2><p>nagiは架空のヘッドスパを題材にしたコンセプト作品です。実際の空き状況の確認・ご予約はできません。</p><form method="dialog"><button autofocus>ページに戻る</button></form></dialog>
   <script type="module">
     import './nagi-water-gate.js';
-    document.querySelector('nagi-water-gate').addEventListener('nagi:reserve',()=>document.querySelector('#reservation').showModal());
+    import './site.js';
     if (new URLSearchParams(location.search).has('review')) {
       const panel = document.createElement('nav');
       panel.setAttribute('aria-label','WATER GATE SHOWER ZONE 確認位置');
