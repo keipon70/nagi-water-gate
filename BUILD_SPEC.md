@@ -16,6 +16,8 @@ Asset manifest:
 
 Desktop: 1440×900. Mobile: 390×844, portrait layout preserves subject and gives typography quiet space. Native system serif Japanese and Georgia Latin. No external font downloads.
 
+Mobile readability repair (2026-10-08): preserve water, photos, copy and desktop layout. Add an ivory reading surface above the WebGL canvas, resolved before the first HERO letter appears; reverse scroll removes it again. Explicit dark text, 14px support/CTA, 9px eyebrow, and 10px white scroll cue on a dark backing. No-JS mobile receives the same high-contrast treatment. Source QA passed. Chrome viewport checks at 320/375/390/768/1024/1440px plus reduced motion: no horizontal overflow/page errors, CTA in view and dialog opens. Mobile entry/transition/final screenshots inspected. Physical-phone confirmation remains pending.
+
 Fallback: reduced motion shortens the gate and uses opacity only. No WebGL/context loss gets the same simplified transition; no JS gets the final semantic HERO. CTA emits nagi:reserve unless reservation-url is supplied; demo responds with an accessible dialog explicitly stating booking is unconnected.
 
 Validation: real browser desktop/mobile, exact reverse states, stopped frames, transition captures, keyboard, resize, reduced motion, no JS and WebGL failure. User-local acceptance pending.

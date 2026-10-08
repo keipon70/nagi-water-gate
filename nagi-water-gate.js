@@ -169,6 +169,8 @@ export class NagiWaterGate extends HTMLElement {
     this.lastProgress = p;
     this.dataset.progress = p.toFixed(5);
     const revealP = this.simplified ? smooth(.08, .85, p) : p;
+    // Resolve the mobile reading surface before the first letter appears.
+    this.hero.style.setProperty('--reading-surface', String(smooth(this.simplified ? 0 : .76, this.simplified ? .08 : .845, revealP)));
     this.gatePlate.style.opacity = String(1 - smooth(this.simplified ? .05 : .48, this.simplified ? .8 : .62, p));
     this.cue.style.opacity = String(1 - smooth(0, this.simplified ? .2 : .18, p));
     const starts = this.simplified ? [.08,.08,.08,.08,.08,.08] : [.845,.866,.885,.904,.925,.948];
