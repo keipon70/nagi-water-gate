@@ -74,7 +74,7 @@ export class NagiWaterGate extends HTMLElement {
     const gateURL = this.getAttribute('gate-src') || asset('gate.webp');
     const heroURL = this.getAttribute('hero-src') || asset('hero.webp');
     this.shadowRoot.innerHTML = `
-      <link rel="stylesheet" href="${new URL('./nagi-water-gate.css', import.meta.url).href}">
+      <link rel="stylesheet" href="${new URL('./nagi-water-gate.css?v=white-20261008', import.meta.url).href}">
       <section class="gate"><div class="stage">
         <div class="plate hero-plate" aria-hidden="true"></div>
         <div class="plate gate-plate" aria-hidden="true"></div>
