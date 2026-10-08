@@ -29,7 +29,7 @@ jobs:
         run: |
           mkdir -p _site/assets
           cp index.html site.css site.js nagi-water-gate.js nagi-water-gate.css water-shader.js .nojekyll _site/
-          cp assets/*.webp assets/nagi-og.jpg _site/assets/
+          cp assets/*.webp assets/nagi-og-v2.jpg _site/assets/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

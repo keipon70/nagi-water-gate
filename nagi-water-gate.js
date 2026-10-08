@@ -85,7 +85,7 @@ export class NagiWaterGate extends HTMLElement {
           <p class="brand reveal">nagi</p><p class="eyebrow reveal">PRIVATE HEAD SPA</p>
           <h1 class="headline"><span class="reveal">何もしない時間を、</span><span class="reveal">自分のために。</span></h1>
           <p class="support reveal">頭も、予定も、会話も。<br>75分だけ、そっと置いていく。</p>
-          <button class="cta reveal" type="button">空き状況を見る ${arrow}</button>
+          <button class="cta reveal" type="button">ご予約案内を見る ${arrow}</button>
         </div>
       </div></section>`;
     const root = this.shadowRoot;
